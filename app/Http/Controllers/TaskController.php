@@ -14,7 +14,7 @@ class TaskController extends Controller
      */
     public function index()
     {
-        return Task::all();
+       return Task::where('user_id', auth()->id())->get();
     }
 
     /**
@@ -29,6 +29,8 @@ class TaskController extends Controller
             'title' => 'required'
         ]);
 
+        $fields['user_id'] = auth()->id();
+
         return Task::create($fields);
     }
 
@@ -40,7 +42,15 @@ class TaskController extends Controller
      */
     public function show($id)
     {
-        return Task::find($id);
+        $task = Task::find($id);
+        
+        if(!$task || $task->user_id != auth()->id()) {
+            return response([
+                'message' => 'Unauthorised Action'
+            ], 401);
+        }
+
+        return $task;
     }
 
     /**
@@ -53,7 +63,15 @@ class TaskController extends Controller
     public function update(Request $request, $id)
     {
         $task = Task::find($id);
+
+        if(!$task || $task->user_id != auth()->id()) {
+            return response([
+                'message' => 'Unauthorised Action'
+            ], 401);
+        }
+
         $task->update($request->all());
+
         return $task;
     }
 
@@ -65,6 +83,14 @@ class TaskController extends Controller
      */
     public function destroy($id)
     {
-        return Task::destroy($id);
+        $task = Task::find($id);
+        
+        if(!$task || $task->user_id != auth()->id()) {
+            return response([
+                'message' => 'Unauthorised Action'
+            ], 401);
+        }
+
+        return $task->delete();
     }
 }

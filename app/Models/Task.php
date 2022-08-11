@@ -9,5 +9,5 @@ class Task extends Model
 {
     use HasFactory;
 
-    protected $fillable = ['title', 'description', 'done'];
+    protected $fillable = ['user_id', 'title', 'description', 'done'];
 }
