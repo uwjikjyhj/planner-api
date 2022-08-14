@@ -2,8 +2,10 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\Block;
 use App\Models\Task;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\DB;
 
 class TaskController extends Controller
 {
@@ -14,7 +16,16 @@ class TaskController extends Controller
      */
     public function index()
     {
-       return Task::where('user_id', auth()->id())->get();
+        $tasks = Task::where('user_id', auth()->id())->get();
+
+        // TODO: Improve calculation of time spent on a task
+        foreach($tasks as $task) {
+            $timeSpent = Block::where('task_id', $task->id)->sum(DB::raw('TIME_TO_SEC(duration)'));
+            $timeSpent = date('H:i:s', $timeSpent);
+            $task['time_spent'] = $timeSpent;
+        }
+        
+        return $tasks;
     }
 
     /**
